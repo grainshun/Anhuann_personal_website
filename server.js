@@ -690,6 +690,9 @@ function serveStatic(req, res) {
     const ext = path.extname(fp).toLowerCase();
     const headers = {
       "Content-Type": MIME[ext] || "application/octet-stream",
+      // 阿里云 FC 的 HTTP 触发器默认会给响应加 Content-Disposition: attachment，
+      // 导致浏览器把 HTML 当文件下载。这里显式声明 inline，让浏览器正常渲染页面。
+      "Content-Disposition": "inline",
     };
     // JS/CSS 不缓存，保证后台保存后前台能立刻拿到新内容
     if (ext === ".js" || ext === ".css") headers["Cache-Control"] = "no-cache";
