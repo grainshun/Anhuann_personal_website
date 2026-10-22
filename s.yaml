@@ -1,11 +1,11 @@
-edition: 3
+edition: 2.0.0
 name: anhuann-site
 # access 对应你执行 `s config add` 时配置的访问别名（默认叫 default）
 access: default
-resources:
+services:
   anhuann-fc:
-    # 阿里云函数计算 FC3 官方组件
-    component: fc3
+    # 阿里云函数计算 FC3 官方组件（完整路径）
+    component: devsapp/fc3
     props:
       region: cn-beijing
       serviceName: anhuann-service
