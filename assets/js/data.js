@@ -360,6 +360,8 @@ const UI = {
     ghostBtn: "和我聊聊",
     scrollHint: "向下滚动"
   },
+  // 作者状态：首页展示的近况/更新频率，可在后台「界面文案」里修改
+  authorStatus: "📅 每周更新中 · 认真生活，持续输出",
   about: {
     kicker: "About",
     title: "关于我",

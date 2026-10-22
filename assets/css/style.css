@@ -513,6 +513,29 @@ code {
   justify-content: center;
 }
 
+/* 作者状态：首屏展示的近况/更新频率，做成柔和药丸 */
+.author-status {
+  margin: 28px auto 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-sm);
+}
+.author-status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34c759; /* 在线绿点，表示作者状态活跃 */
+  box-shadow: 0 0 0 3px color-mix(in srgb, #34c759 25%, transparent);
+}
+
 .social-pill {
   width: 42px;
   height: 42px;

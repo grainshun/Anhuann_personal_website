@@ -268,6 +268,9 @@
     setText("#contactKicker", u.contact && u.contact.kicker);
     setText("#contactTitle", u.contact && u.contact.title);
     setText("#contactSub", u.contact && u.contact.sub);
+
+    // 作者状态：首页 hero 区展示的近况/更新频率，后台「界面文案」可改
+    setText("#authorStatus", u.authorStatus);
   }
 
   /* ---------- 数学公式渲染（KaTeX） ---------- */

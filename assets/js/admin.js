@@ -394,6 +394,7 @@
     ["hero.primaryBtn", "首屏主按钮"],
     ["hero.ghostBtn", "首屏次按钮"],
     ["hero.scrollHint", "首屏滚动提示（无障碍文字）"],
+    ["authorStatus", "作者状态（首页展示的近况/更新频率，如：每周更新中）"],
     ["about.kicker", "关于我：小标签"],
     ["about.title", "关于我：标题"],
     ["about.sub", "关于我：副标题"],
