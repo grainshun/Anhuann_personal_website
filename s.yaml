@@ -1,0 +1,36 @@
+edition: 3
+name: anhuann-site
+# access 对应你执行 `s config add` 时配置的访问别名（默认叫 default）
+access: default
+resources:
+  anhuann-fc:
+    # 阿里云函数计算 FC3 官方组件
+    component: fc3
+    props:
+      region: cn-beijing
+      serviceName: anhuann-service
+      functionName: anhuann-site
+      description: "Anhuann 个人网站 + 可视化后台"
+      # Custom Runtime：用仓库里的 bootstrap 启动 node server.js
+      runtime: custom
+      code: .
+      customRuntimeConfig:
+        command:
+          - bash
+          - bootstrap
+      memorySize: 256
+      timeout: 30
+      environmentVariables:
+        ADMIN_USER: "AnHuann"
+        # 请改成你自己的强密码（务必和本地不同，且不要写进仓库）
+        ADMIN_PASS: "请改成你的强密码"
+        # 挂了 NAS 并挂载到 /mnt/auto 后，取消下一行注释，让后台内容持久化：
+        # DATA_DIR: /mnt/auto
+      triggers:
+        - name: http
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+              - POST

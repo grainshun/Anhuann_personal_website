@@ -1,0 +1,9 @@
+# Serverless Devs 打包上传时排除这些文件/目录
+# 关键：绝不能把本地 .env（含后台密码）传到云端
+.env
+.env.example
+backups/
+.codebuddy/
+node_modules/
+*.log
+.DS_Store

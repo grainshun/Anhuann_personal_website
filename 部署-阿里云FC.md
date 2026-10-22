@@ -10,48 +10,23 @@
 
 ## 方式一：Serverless Devs（推荐，最省心）
 
-1. 本地安装 `s` 工具（需要 Node ≥ 16）：
+仓库里已经准备好了 `s.yaml`（区域已设为 `cn-beijing`）、`bootstrap`、`package.json` 和 `.signore`。
+
+1. 准备阿里云访问凭证（AccessKey）：
+   - 登录阿里云控制台 → **访问控制 RAM** → 创建用户并赋予「函数计算」相关权限（如 `AliyunFCFullAccess`；若用 NAS 再加 `AliyunNASFullAccess`）
+   - 为该用户创建 **AccessKey（ID + Secret）**
+2. 本地安装 `s` 工具（需要 Node ≥ 16）：
    ```bash
    npm install -g @serverless-devs/s
-   s config add   # 按提示用阿里云 AccessKey 登录
+   s config add        # 选 Alibaba Cloud，填上面的 AccessKey ID / Secret，访问别名用 default
    ```
-2. 仓库根目录已可部署。在仓库根新建 `s.yaml`（示例）：
-   ```yaml
-   edition: 3
-   name: anhuann-site
-   access: 'default'
-   resources:
-     anhuann-fc:
-       component: fc3
-       props:
-         region: cn-hangzhou
-         functionName: anhuann-site
-         runtime: custom
-         cpu: 0.35
-         memorySize: 256
-         timeout: 30
-         code: .
-         customRuntimeConfig:
-           command:
-             - bash
-             - bootstrap
-         environmentVariables:
-           ADMIN_USER: AnHuann
-           ADMIN_PASS: "在这里填你的强密码"
-           # 若挂载了 NAS 并挂到 /mnt/auto，则持久化内容写到这里：
-           # DATA_DIR: /mnt/auto
-         triggers:
-           - name: http
-             type: http
-             config:
-               authType: anonymous
-               methods: [GET, POST]
-   ```
-3. 部署：
+3. 编辑 `s.yaml`，把 `ADMIN_PASS` 改成你的强密码（**只在本机文件里改，不要提交到仓库**）。
+4. 在仓库根目录部署：
    ```bash
    s deploy
    ```
-4. 部署完成后会得到一个 `*.fc.aliyuncs.com` 的临时域名（阿里云已备案，**免备案**即可访问）。
+   > 注意：`.signore` 已配置，**本地 `.env`（含密码）与 `backups/` 不会被上传**。
+5. 部署完成后会得到一个 `*.fc.aliyuncs.com` 的临时域名（阿里云已备案，**免备案**即可访问）。
    手机浏览器打开 `https://<你的域名>/admin.html` 即可登录后台。
 
 > 想连 GitHub 自动部署：在 FC 控制台「函数」→「代码」里选择「代码仓库」并授权 GitHub，
