@@ -128,6 +128,57 @@
     t.value = Array.isArray(val) ? val.join("\n") : val == null ? "" : String(val);
     return t;
   }
+  // 在文本域光标处（或选中文字两侧）插入 Markdown 标记
+  function insertMd(ta, pre, post) {
+    const s = ta.selectionStart, e = ta.selectionEnd;
+    const v = ta.value;
+    const sel = v.slice(s, e) || "文字";
+    ta.value = v.slice(0, s) + pre + sel + post + v.slice(e);
+    const ns = s + pre.length, ne = ns + sel.length;
+    ta.focus();
+    ta.setSelectionRange(ns, ne);
+    ta.dispatchEvent(new Event("input"));
+  }
+  // Markdown 编辑器：工具栏 + 文本域 + 实时预览，写文章/故事更省心
+  function markdownField(labelText, value, rows) {
+    const wrap = el("div", "md-editor");
+    // 工具栏
+    const bar = el("div", "md-toolbar");
+    const tools = [
+      ["B", "加粗", "**", "**"],
+      ["I", "斜体", "*", "*"],
+      ["H", "标题", "### ", ""],
+      ["❝", "引用", "> ", ""],
+      ["•", "列表", "- ", ""],
+      ["🔗", "链接", "[", "](https://)"],
+      ["</>", "代码", "`", "`"],
+    ];
+    tools.forEach(([t, title, pre, post]) => {
+      const b = el("button", "md-btn");
+      b.type = "button";
+      b.textContent = t;
+      b.title = title;
+      b.addEventListener("click", () =>
+        insertMd(wrap.querySelector("textarea"), pre, post)
+      );
+      bar.appendChild(b);
+    });
+    // 编辑区 + 预览区
+    const ta = textareaInput(value, rows || 6);
+    ta.classList.add("md-input");
+    ta.placeholder =
+      "支持 Markdown：# 标题、**加粗**、- 列表、> 引用、[链接](url)、`代码`，以及 $公式$";
+    const prev = el("div", "md-preview md-live");
+    const render = () => { prev.innerHTML = miniMarkdown(ta.value); };
+    ta.addEventListener("input", render);
+    render();
+    const split = el("div", "md-split");
+    split.appendChild(ta);
+    split.appendChild(prev);
+    wrap.appendChild(bar);
+    wrap.appendChild(split);
+    return field(labelText, wrap);
+  }
   // 复选框
   function checkboxInput(val) {
     const i = el("input");
@@ -237,8 +288,7 @@
     const item = el("div", "list-item");
     const title = textInput(t.title);
     title.placeholder = "标题";
-    const body = textareaInput(t.body, 3); // 正文按行编辑
-    body.placeholder = "正文，每段一行";
+    const body = markdownField("正文（支持 Markdown，右侧实时预览）", t.body, 4);
     const del = el("button", "item-del");
     del.type = "button";
     del.textContent = "×";
@@ -249,7 +299,7 @@
       }
     });
     item.appendChild(field("标题", title));
-    item.appendChild(field("正文（每段一行）", body));
+    item.appendChild(body);
     item.appendChild(del);
     return item;
   }
@@ -344,9 +394,7 @@
     tags.placeholder = "标签，逗号分隔";
     const excerpt = textInput(p.excerpt);
     excerpt.placeholder = "摘要";
-    const body = textareaInput(p.body, 6); // 正文按行编辑，支持简单 HTML 与 LaTeX
-    body.placeholder =
-      "正文，每段一行；支持 <h3>小标题</h3>、<strong>加粗</strong>、<blockquote>引用</blockquote>，以及 $E=mc^2$ 这样的 LaTeX 公式";
+    const body = markdownField("正文（支持 Markdown，右侧实时预览）", p.body, 8);
     const del = el("button", "item-del");
     del.type = "button";
     del.textContent = "×";
@@ -361,7 +409,7 @@
     item.appendChild(field("日期", date));
     item.appendChild(field("标签", tags));
     item.appendChild(field("摘要", excerpt));
-    item.appendChild(field("正文（每段一行）", body));
+    item.appendChild(body);
     item.appendChild(del);
     return item;
   }

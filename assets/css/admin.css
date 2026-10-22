@@ -253,6 +253,40 @@ textarea.input {
 }
 .tool-result.error { color: #d4785f; border-color: #f3d9d1; background: #fdf3f1; }
 
+/* ---------- Markdown 编辑器（写文章/故事更方便） ---------- */
+.md-editor { margin-bottom: 4px; }
+.md-toolbar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.md-btn {
+  min-width: 34px; height: 34px; padding: 0 8px;
+  border: 1px solid #e4ecf4; background: #fff;
+  border-radius: 10px; cursor: pointer;
+  font-size: 0.9rem; color: #5e6b78;
+  display: inline-grid; place-items: center;
+}
+.md-btn:hover { background: #eef4fb; color: #d4785f; }
+.md-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.md-input {
+  min-height: 170px;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.md-live {
+  border: 1px solid #e4ecf4; border-radius: 12px; padding: 12px 14px;
+  background: #fff; min-height: 170px; max-height: 460px; overflow: auto;
+  font-size: 0.95rem; line-height: 1.7; color: #37424f;
+}
+/* 预览区基础排版，让 Markdown 输出好看 */
+.md-live h1, .md-live h2, .md-live h3 { margin: 0.7em 0 0.35em; line-height: 1.3; }
+.md-live p { margin: 0.5em 0; }
+.md-live ul, .md-live ol { margin: 0.5em 0; padding-left: 1.4em; }
+.md-live blockquote {
+  margin: 0.6em 0; padding: 0.4em 0.9em;
+  border-left: 3px solid #e08d79; background: #fdf3f1; color: #5e6b78;
+}
+.md-live code { background: #eef4fb; border-radius: 6px; padding: 1px 6px; font-size: 0.88em; }
+.md-live a { color: #d4785f; }
+
 /* ---------- 恢复备份弹窗 ---------- */
 /* 复用前台 .modal / .modal-panel 样式（admin.html 也引入了 style.css），这里只补内部结构 */
 .backup-panel { max-width: 460px; }
@@ -340,4 +374,5 @@ textarea.input {
   }
   .backup-list { max-height: none; }
   .md-preview { max-height: none; }
+  .md-split { grid-template-columns: 1fr; }
 }

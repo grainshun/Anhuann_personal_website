@@ -409,6 +409,77 @@
     });
   }
 
+  /* ---------- 极简 Markdown 渲染（与后台预览保持一致） ---------- */
+  function escapeHtmlstr(s) {
+    return String(s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
+    );
+  }
+  function mdInline(s) {
+    return s
+      .replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+      .replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener">$1</a>'
+      );
+  }
+  function miniMarkdown(src) {
+    const lines = String(src).replace(/\r\n/g, "\n").split("\n");
+    let html = "";
+    let i = 0;
+    while (i < lines.length) {
+      const line = lines[i];
+      if (/^\s*$/.test(line)) { i++; continue; }
+      let m = line.match(/^(#{1,3})\s+(.*)$/);
+      if (m) {
+        const lv = m[1].length;
+        html += "<h" + lv + ">" + mdInline(escapeHtmlstr(m[2])) + "</h" + lv + ">";
+        i++;
+        continue;
+      }
+      if (/^>\s?/.test(line)) {
+        const buf = [];
+        while (i < lines.length && /^>\s?/.test(lines[i])) {
+          buf.push(lines[i].replace(/^>\s?/, ""));
+          i++;
+        }
+        html += "<blockquote>" + mdInline(escapeHtmlstr(buf.join(" "))) + "</blockquote>";
+        continue;
+      }
+      if (/^[-*]\s+/.test(line)) {
+        const buf = [];
+        while (i < lines.length && /^[-*]\s+/.test(lines[i])) {
+          buf.push("<li>" + mdInline(escapeHtmlstr(lines[i].replace(/^[-*]\s+/, ""))) + "</li>");
+          i++;
+        }
+        html += "<ul>" + buf.join("") + "</ul>";
+        continue;
+      }
+      if (/^\d+\.\s+/.test(line)) {
+        const buf = [];
+        while (i < lines.length && /^\d+\.\s+/.test(lines[i])) {
+          buf.push("<li>" + mdInline(escapeHtmlstr(lines[i].replace(/^\d+\.\s+/, ""))) + "</li>");
+          i++;
+        }
+        html += "<ol>" + buf.join("") + "</ol>";
+        continue;
+      }
+      const buf = [];
+      while (
+        i < lines.length &&
+        !/^\s*$/.test(lines[i]) &&
+        !/(^#{1,3}\s)|(^>\s?)|(^[-*]\s+)|(^\d+\.\s+)/.test(lines[i])
+      ) {
+        buf.push(mdInline(escapeHtmlstr(lines[i])));
+        i++;
+      }
+      html += "<p>" + buf.join("<br>") + "</p>";
+    }
+    return html;
+  }
+
   /* ---------- 文章弹窗 ---------- */
   let lastFocused = null; // 记住打开弹窗前聚焦的元素，关闭后归还焦点（无障碍）
 
@@ -423,10 +494,9 @@
       .map((t) => `<span class="tag">${escapeHtml(t)}</span>`)
       .join("");
     $("#modalTitle").textContent = post.title;
-    // 正文：以 < 开头的段视为已带 HTML（标题/引用等），否则包成 <p>
-    $("#modalBody").innerHTML = (post.body || [])
-      .map((b) => (b.indexOf("<") === 0 ? b : `<p>${b}</p>`))
-      .join("");
+    // 正文：按 Markdown 渲染（与后台预览一致），保留 $...$ 公式
+    const bodySrc = Array.isArray(post.body) ? post.body.join("\n") : String(post.body || "");
+    $("#modalBody").innerHTML = miniMarkdown(bodySrc);
 
     renderMath($("#modalBody")); // 弹窗正文里的公式也渲染
 

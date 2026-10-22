@@ -1316,6 +1316,15 @@ code {
   color: var(--accent-strong);
 }
 
+/* 文章正文里 Markdown 渲染出的行内代码与链接 */
+.modal-body code {
+  background: var(--accent-soft);
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-size: 0.9em;
+}
+.modal-body a { color: var(--accent); text-decoration: underline; }
+
 /* ---------- 页脚 ---------- */
 .site-footer {
   padding: 36px 0;
