@@ -1,5 +1,3 @@
 #!/bin/bash
-# 阿里云函数计算（Custom Runtime）启动脚本
-# FC 会把监听端口通过环境变量 FC_SERVER_PORT 传进来（server.js 已兼容），
-# 这里直接启动 Node 服务即可。
+cd /code
 node server.js
