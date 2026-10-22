@@ -22,8 +22,8 @@ resources:
       timeout: 30
       environmentVariables:
         ADMIN_USER: "AnHuann"
-        # 请改成你自己的强密码（务必和本地不同，且不要写进仓库）
-        ADMIN_PASS: "请改成你的强密码"
+        # 密码通过环境变量 ADMIN_PASS 注入（不在仓库写死，避免泄露）
+        ADMIN_PASS: ${env('ADMIN_PASS')}
         # 挂了 NAS 并挂载到 /mnt/auto 后，取消下一行注释，让后台内容持久化：
         # DATA_DIR: /mnt/auto
       triggers:
