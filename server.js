@@ -61,16 +61,19 @@ const ROOT = __dirname;
   }
 })();
 
-// 监听端口：优先取环境变量 PORT，否则用 8080
-const PORT = process.env.PORT || 8080;
+// 监听端口：阿里云 FC 用 FC_SERVER_PORT，其次 PORT，否则 8080
+const PORT = process.env.FC_SERVER_PORT || process.env.PORT || 8080;
 // 后台账号：可经环境变量覆盖（用户名非机密，留默认值无妨）
 const ADMIN_USER = process.env.ADMIN_USER || "AnHuann";
 // 后台密码：必须来自环境变量或 .env，**不留明文默认值**，避免提交到仓库后泄露
 const ADMIN_PASS = process.env.ADMIN_PASS;
+// 内容根目录：默认用代码所在目录；在 FC 上可设 DATA_DIR 指向挂载的 NAS，
+// 让 data.js 与备份在实例回收后依然保留（否则 FC 磁盘是临时的，编辑会丢失）
+const DATA_DIR = process.env.DATA_DIR || ROOT;
 // 内容源文件：前台与后台共享的 data.js 路径（服务器以它为唯一内容真相源）
-const DATA_JS = path.join(ROOT, "assets", "js", "data.js");
+const DATA_JS = path.join(DATA_DIR, "assets", "js", "data.js");
 // 自动备份目录与保留份数
-const BACKUP_DIR = path.join(ROOT, "backups");
+const BACKUP_DIR = path.join(DATA_DIR, "backups");
 const BACKUP_KEEP = 5;
 
 /* =========================================================
@@ -368,7 +371,11 @@ const SEC_UI =
  * 这里把文件当代码用 new Function 执行，再 return 出这些变量，得到纯对象。
  * （这是本站自己的文件，不是不可信输入，因此这种用法是安全的。） */
 function extractContent() {
-  const code = fs.readFileSync(DATA_JS, "utf8");
+  // 优先读 DATA_DIR 下的 data.js；若（如 NAS 首次挂载为空）不存在，则退回代码内置副本
+  const src = fs.existsSync(DATA_JS)
+    ? DATA_JS
+    : path.join(ROOT, "assets", "js", "data.js");
+  const code = fs.readFileSync(src, "utf8");
   const fn = new Function(
     code +
       '\nreturn { SITE: SITE, ABOUT: ABOUT, POSTS: POSTS, SOCIALS: SOCIALS, UI: (typeof UI !== "undefined" ? UI : {}) };'
@@ -569,6 +576,7 @@ function handleContent(req, res) {
         }
         try {
           backupData(); // 写前先备份，防止误操作无法回退
+          fs.mkdirSync(path.dirname(DATA_JS), { recursive: true });
           fs.writeFileSync(DATA_JS, serializeData(body), "utf8");
           sendJSON(res, 200, { ok: true });
         } catch (e) {
@@ -639,6 +647,7 @@ function handleRestore(req, res) {
       }
       try {
         backupData(); // 恢复前先把当前内容也备份一份
+        fs.mkdirSync(path.dirname(DATA_JS), { recursive: true });
         fs.copyFileSync(src, DATA_JS);
         sendJSON(res, 200, { ok: true });
       } catch (e) {
